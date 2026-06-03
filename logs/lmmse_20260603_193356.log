@@ -1,0 +1,15 @@
+2026-06-03 19:33:56 | INFO | root | Logging to /mntdatalora/src/ECG-Denoising-LMMSE/logs/lmmse_20260603_193356.log
+2026-06-03 19:33:56 | INFO | root | Runtime context:
+{
+  "config_path": "/mntdatalora/src/ECG-Denoising-LMMSE/configs/lmmse.yaml",
+  "hostname": "pod-4",
+  "output_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/lmmse",
+  "platform": "Linux-6.8.0-124-generic-x86_64-with-glibc2.39",
+  "python": "3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]"
+}
+2026-06-03 19:33:57 | INFO | root | P=8 NMSE=0.45455394 aligned_samples=8993
+2026-06-03 19:33:57 | INFO | root | P=16 NMSE=0.45427845 aligned_samples=8985
+2026-06-03 19:33:57 | INFO | root | P=32 NMSE=0.43762223 aligned_samples=8969
+2026-06-03 19:33:57 | INFO | root | P=64 NMSE=0.40329022 aligned_samples=8937
+2026-06-03 19:33:57 | INFO | root | P=128 NMSE=0.37433756 aligned_samples=8873
+2026-06-03 19:33:57 | INFO | root | Wrote LMMSE outputs to /mntdatalora/src/ECG-Denoising-LMMSE/outputs/lmmse

@@ -1,0 +1,8 @@
+{
+  "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_deep_P64/Final_Transformer.pt",
+  "order": 64,
+  "nmse": 0.1509598299050134,
+  "mse": 0.15252220630645752,
+  "samples": 8937,
+  "attention_samples": 512
+}

@@ -1,0 +1,60 @@
+{
+  "orders": [
+    8,
+    16,
+    32,
+    64,
+    128
+  ],
+  "order_results": [
+    {
+      "order": 8,
+      "nmse": 0.45455393628427954,
+      "filter_l2_norm": 0.3786381286993848,
+      "test_samples_aligned": 8993
+    },
+    {
+      "order": 16,
+      "nmse": 0.45427844579434645,
+      "filter_l2_norm": 0.4402041427954814,
+      "test_samples_aligned": 8985
+    },
+    {
+      "order": 32,
+      "nmse": 0.43762222698411174,
+      "filter_l2_norm": 0.6995919601498722,
+      "test_samples_aligned": 8969
+    },
+    {
+      "order": 64,
+      "nmse": 0.403290223254262,
+      "filter_l2_norm": 0.6971012363019503,
+      "test_samples_aligned": 8937
+    },
+    {
+      "order": 128,
+      "nmse": 0.3743375625523369,
+      "filter_l2_norm": 0.5558374353470297,
+      "test_samples_aligned": 8873
+    }
+  ],
+  "best_order": 128,
+  "best_nmse": 0.3743375625523369,
+  "noise_autocorrelation_whiteness_ratio": 0.998269850094069,
+  "noise_white_interpretation": "not well approximated as white",
+  "clean_peak_frequency_hz": 6.328125,
+  "noise_peak_frequency_hz": 0.703125,
+  "filter_l2_norms": {
+    "P8": 0.3786381286993848,
+    "P16": 0.4402041427954814,
+    "P32": 0.6995919601498722,
+    "P64": 0.6971012363019503,
+    "P128": 0.5558374353470297
+  },
+  "source_files": {
+    "results": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/lmmse/lmmse_results.json",
+    "autocorrelation": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/lmmse/autocorrelation_sequences.npz",
+    "psd": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/lmmse/welch_psd.npz",
+    "filters": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/lmmse/lmmse_filters.npz"
+  }
+}

@@ -1,0 +1,306 @@
+{
+  "run_count": 9,
+  "runs": [
+    {
+      "run_name": "arch_deep_P64",
+      "run_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_deep_P64",
+      "order": 64,
+      "model": {
+        "window_size": 64,
+        "d_model": 64,
+        "nhead": 8,
+        "num_layers": 4,
+        "dim_feedforward": 256,
+        "dropout": 0.1
+      },
+      "metrics": {
+        "nmse": 0.15095982985593706,
+        "mse": 0.15252220630645752,
+        "samples": 8937
+      },
+      "training_summary": {
+        "train_windows": 17796,
+        "validation_windows": 3141,
+        "final_train_loss": 0.010741436237519136,
+        "final_validation_loss": 0.0509407450164799
+      },
+      "has_checkpoint": true,
+      "has_attention": true,
+      "has_history": true,
+      "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_deep_P64/Final_Transformer.pt",
+      "attention": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_deep_P64/inference/cls_attention_mean.npy",
+      "history": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_deep_P64/history.csv"
+    },
+    {
+      "run_name": "arch_medium_P64",
+      "run_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_medium_P64",
+      "order": 64,
+      "model": {
+        "window_size": 64,
+        "d_model": 64,
+        "nhead": 4,
+        "num_layers": 3,
+        "dim_feedforward": 256,
+        "dropout": 0.1
+      },
+      "metrics": {
+        "nmse": 0.14324441319633643,
+        "mse": 0.1447269320487976,
+        "samples": 8937
+      },
+      "training_summary": {
+        "train_windows": 17796,
+        "validation_windows": 3141,
+        "final_train_loss": 0.01061656173786693,
+        "final_validation_loss": 0.04986816991223761
+      },
+      "has_checkpoint": true,
+      "has_attention": true,
+      "has_history": true,
+      "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_medium_P64/Final_Transformer.pt",
+      "attention": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_medium_P64/inference/cls_attention_mean.npy",
+      "history": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_medium_P64/history.csv"
+    },
+    {
+      "run_name": "arch_small_P64",
+      "run_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_small_P64",
+      "order": 64,
+      "model": {
+        "window_size": 64,
+        "d_model": 32,
+        "nhead": 4,
+        "num_layers": 2,
+        "dim_feedforward": 128,
+        "dropout": 0.1
+      },
+      "metrics": {
+        "nmse": 0.1387261095603416,
+        "mse": 0.14016187191009521,
+        "samples": 8937
+      },
+      "training_summary": {
+        "train_windows": 17796,
+        "validation_windows": 3141,
+        "final_train_loss": 0.011518573520965095,
+        "final_validation_loss": 0.05396835888335372
+      },
+      "has_checkpoint": true,
+      "has_attention": true,
+      "has_history": true,
+      "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_small_P64/Final_Transformer.pt",
+      "attention": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_small_P64/inference/cls_attention_mean.npy",
+      "history": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/arch_small_P64/history.csv"
+    },
+    {
+      "run_name": "transformer_p64",
+      "run_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/transformer_p64",
+      "order": 64,
+      "model": {
+        "window_size": 64,
+        "d_model": 32,
+        "nhead": 4,
+        "num_layers": 2,
+        "dim_feedforward": 128,
+        "dropout": 0.1
+      },
+      "metrics": {
+        "nmse": 0.1387261095603416,
+        "mse": 0.14016187191009521,
+        "samples": 8937
+      },
+      "training_summary": {
+        "train_windows": 17796,
+        "validation_windows": 3141,
+        "final_train_loss": 0.011518573520965095,
+        "final_validation_loss": 0.05396835888335372
+      },
+      "has_checkpoint": true,
+      "has_attention": true,
+      "has_history": true,
+      "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/transformer_p64/Final_Transformer.pt",
+      "attention": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/transformer_p64/inference/cls_attention_mean.npy",
+      "history": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/transformer_p64/history.csv"
+    },
+    {
+      "run_name": "window_P128_medium",
+      "run_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P128_medium",
+      "order": 128,
+      "model": {
+        "window_size": 128,
+        "d_model": 64,
+        "nhead": 4,
+        "num_layers": 3,
+        "dim_feedforward": 256,
+        "dropout": 0.1
+      },
+      "metrics": {
+        "nmse": 0.12366344663376447,
+        "mse": 0.12527506053447723,
+        "samples": 8873
+      },
+      "training_summary": {
+        "train_windows": 17742,
+        "validation_windows": 3131,
+        "final_train_loss": 0.007888357890497927,
+        "final_validation_loss": 0.042273208132642494
+      },
+      "has_checkpoint": true,
+      "has_attention": true,
+      "has_history": true,
+      "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P128_medium/Final_Transformer.pt",
+      "attention": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P128_medium/inference/cls_attention_mean.npy",
+      "history": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P128_medium/history.csv"
+    },
+    {
+      "run_name": "window_P16_medium",
+      "run_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P16_medium",
+      "order": 16,
+      "model": {
+        "window_size": 16,
+        "d_model": 64,
+        "nhead": 4,
+        "num_layers": 3,
+        "dim_feedforward": 256,
+        "dropout": 0.1
+      },
+      "metrics": {
+        "nmse": 0.15638778337440962,
+        "mse": 0.15775682032108307,
+        "samples": 8985
+      },
+      "training_summary": {
+        "train_windows": 17837,
+        "validation_windows": 3148,
+        "final_train_loss": 0.03254131603215988,
+        "final_validation_loss": 0.05668371330752609
+      },
+      "has_checkpoint": true,
+      "has_attention": true,
+      "has_history": true,
+      "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P16_medium/Final_Transformer.pt",
+      "attention": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P16_medium/inference/cls_attention_mean.npy",
+      "history": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P16_medium/history.csv"
+    },
+    {
+      "run_name": "window_P32_medium",
+      "run_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P32_medium",
+      "order": 32,
+      "model": {
+        "window_size": 32,
+        "d_model": 64,
+        "nhead": 4,
+        "num_layers": 3,
+        "dim_feedforward": 256,
+        "dropout": 0.1
+      },
+      "metrics": {
+        "nmse": 0.14647637380939618,
+        "mse": 0.14783352613449097,
+        "samples": 8969
+      },
+      "training_summary": {
+        "train_windows": 17824,
+        "validation_windows": 3145,
+        "final_train_loss": 0.014656911699412327,
+        "final_validation_loss": 0.044848158080219656
+      },
+      "has_checkpoint": true,
+      "has_attention": true,
+      "has_history": true,
+      "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P32_medium/Final_Transformer.pt",
+      "attention": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P32_medium/inference/cls_attention_mean.npy",
+      "history": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P32_medium/history.csv"
+    },
+    {
+      "run_name": "window_P64_medium",
+      "run_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P64_medium",
+      "order": 64,
+      "model": {
+        "window_size": 64,
+        "d_model": 64,
+        "nhead": 4,
+        "num_layers": 3,
+        "dim_feedforward": 256,
+        "dropout": 0.1
+      },
+      "metrics": {
+        "nmse": 0.14324441319633643,
+        "mse": 0.1447269320487976,
+        "samples": 8937
+      },
+      "training_summary": {
+        "train_windows": 17796,
+        "validation_windows": 3141,
+        "final_train_loss": 0.01061656173786693,
+        "final_validation_loss": 0.04986816991223761
+      },
+      "has_checkpoint": true,
+      "has_attention": true,
+      "has_history": true,
+      "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P64_medium/Final_Transformer.pt",
+      "attention": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P64_medium/inference/cls_attention_mean.npy",
+      "history": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P64_medium/history.csv"
+    },
+    {
+      "run_name": "window_P8_medium",
+      "run_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P8_medium",
+      "order": 8,
+      "model": {
+        "window_size": 8,
+        "d_model": 64,
+        "nhead": 4,
+        "num_layers": 3,
+        "dim_feedforward": 256,
+        "dropout": 0.1
+      },
+      "metrics": {
+        "nmse": 0.18213470024948328,
+        "mse": 0.18368719518184662,
+        "samples": 8993
+      },
+      "training_summary": {
+        "train_windows": 17844,
+        "validation_windows": 3149,
+        "final_train_loss": 0.06404386812349629,
+        "final_validation_loss": 0.06708254703584078
+      },
+      "has_checkpoint": true,
+      "has_attention": true,
+      "has_history": true,
+      "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P8_medium/Final_Transformer.pt",
+      "attention": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P8_medium/inference/cls_attention_mean.npy",
+      "history": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P8_medium/history.csv"
+    }
+  ],
+  "best_run": {
+    "run_name": "window_P128_medium",
+    "run_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P128_medium",
+    "order": 128,
+    "model": {
+      "window_size": 128,
+      "d_model": 64,
+      "nhead": 4,
+      "num_layers": 3,
+      "dim_feedforward": 256,
+      "dropout": 0.1
+    },
+    "metrics": {
+      "nmse": 0.12366344663376447,
+      "mse": 0.12527506053447723,
+      "samples": 8873
+    },
+    "training_summary": {
+      "train_windows": 17742,
+      "validation_windows": 3131,
+      "final_train_loss": 0.007888357890497927,
+      "final_validation_loss": 0.042273208132642494
+    },
+    "has_checkpoint": true,
+    "has_attention": true,
+    "has_history": true,
+    "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P128_medium/Final_Transformer.pt",
+    "attention": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P128_medium/inference/cls_attention_mean.npy",
+    "history": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P128_medium/history.csv"
+  },
+  "source_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer"
+}

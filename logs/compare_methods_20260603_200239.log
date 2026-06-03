@@ -1,0 +1,10 @@
+2026-06-03 20:02:39 | INFO | root | Logging to /mntdatalora/src/ECG-Denoising-LMMSE/logs/compare_methods_20260603_200239.log
+2026-06-03 20:02:39 | INFO | root | Runtime context:
+{
+  "config_path": "/mntdatalora/src/ECG-Denoising-LMMSE/configs/evaluation.yaml",
+  "hostname": "pod-4",
+  "output_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/evaluation",
+  "platform": "Linux-6.8.0-124-generic-x86_64-with-glibc2.39",
+  "python": "3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]"
+}
+2026-06-03 20:02:42 | INFO | root | Wrote method comparison to /mntdatalora/src/ECG-Denoising-LMMSE/outputs/evaluation

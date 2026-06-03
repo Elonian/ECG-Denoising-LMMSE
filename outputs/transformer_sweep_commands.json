@@ -1,0 +1,12 @@
+{
+  "commands": [
+    "/usr/bin/python scripts/train_transformer.py --config /mntdatalora/src/ECG-Denoising-LMMSE/configs/transformer.yaml --run-name arch_small_P64 --P 64 --d-model 32 --nhead 4 --num-layers 2 --dim-feedforward 128 --dropout 0.1 --epochs 200 --batch-size 256 --lr 0.001 --validation-fraction 0.15 --seed 0",
+    "/usr/bin/python scripts/train_transformer.py --config /mntdatalora/src/ECG-Denoising-LMMSE/configs/transformer.yaml --run-name arch_medium_P64 --P 64 --d-model 64 --nhead 4 --num-layers 3 --dim-feedforward 256 --dropout 0.1 --epochs 200 --batch-size 256 --lr 0.001 --validation-fraction 0.15 --seed 0",
+    "/usr/bin/python scripts/train_transformer.py --config /mntdatalora/src/ECG-Denoising-LMMSE/configs/transformer.yaml --run-name arch_deep_P64 --P 64 --d-model 64 --nhead 8 --num-layers 4 --dim-feedforward 256 --dropout 0.1 --epochs 200 --batch-size 256 --lr 0.001 --validation-fraction 0.15 --seed 0",
+    "/usr/bin/python scripts/train_transformer.py --config /mntdatalora/src/ECG-Denoising-LMMSE/configs/transformer.yaml --run-name window_P8_medium --P 8 --d-model 64 --nhead 4 --num-layers 3 --dim-feedforward 256 --dropout 0.1 --epochs 200 --batch-size 256 --lr 0.001 --validation-fraction 0.15 --seed 0",
+    "/usr/bin/python scripts/train_transformer.py --config /mntdatalora/src/ECG-Denoising-LMMSE/configs/transformer.yaml --run-name window_P16_medium --P 16 --d-model 64 --nhead 4 --num-layers 3 --dim-feedforward 256 --dropout 0.1 --epochs 200 --batch-size 256 --lr 0.001 --validation-fraction 0.15 --seed 0",
+    "/usr/bin/python scripts/train_transformer.py --config /mntdatalora/src/ECG-Denoising-LMMSE/configs/transformer.yaml --run-name window_P32_medium --P 32 --d-model 64 --nhead 4 --num-layers 3 --dim-feedforward 256 --dropout 0.1 --epochs 200 --batch-size 256 --lr 0.001 --validation-fraction 0.15 --seed 0",
+    "/usr/bin/python scripts/train_transformer.py --config /mntdatalora/src/ECG-Denoising-LMMSE/configs/transformer.yaml --run-name window_P64_medium --P 64 --d-model 64 --nhead 4 --num-layers 3 --dim-feedforward 256 --dropout 0.1 --epochs 200 --batch-size 256 --lr 0.001 --validation-fraction 0.15 --seed 0",
+    "/usr/bin/python scripts/train_transformer.py --config /mntdatalora/src/ECG-Denoising-LMMSE/configs/transformer.yaml --run-name window_P128_medium --P 128 --d-model 64 --nhead 4 --num-layers 3 --dim-feedforward 256 --dropout 0.1 --epochs 200 --batch-size 256 --lr 0.001 --validation-fraction 0.15 --seed 0"
+  ]
+}

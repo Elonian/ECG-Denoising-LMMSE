@@ -1,0 +1,39 @@
+{
+  "run_name": "arch_small_P64",
+  "order": 64,
+  "model": {
+    "window_size": 64,
+    "d_model": 32,
+    "nhead": 4,
+    "num_layers": 2,
+    "dim_feedforward": 128,
+    "dropout": 0.1
+  },
+  "training": {
+    "epochs": 200,
+    "learning_rate": 0.001,
+    "batch_size": 256,
+    "validation_fraction": 0.15,
+    "weight_decay": 0.0,
+    "num_workers": 0,
+    "grad_clip_norm": 1.0,
+    "device": "auto",
+    "log_every_n_steps": 25
+  },
+  "training_summary": {
+    "train_windows": 17796,
+    "validation_windows": 3141,
+    "final_train_loss": 0.011518573520965095,
+    "final_validation_loss": 0.05396835888335372
+  },
+  "normalization": {
+    "mean": -1.2592136859893799,
+    "std": 1.1978462934494019
+  },
+  "metrics": {
+    "nmse": 0.1387261095603416,
+    "mse": 0.14016187191009521,
+    "samples": 8937
+  },
+  "log_path": "/mntdatalora/src/ECG-Denoising-LMMSE/logs/arch_small_P64_20260603_193657.log"
+}

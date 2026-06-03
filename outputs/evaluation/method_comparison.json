@@ -1,0 +1,114 @@
+{
+  "comparison_rows": [
+    {
+      "order": 64,
+      "transformer_run": "arch_deep_P64",
+      "transformer_nmse": 0.15095982985593706,
+      "lmmse_nmse": 0.403290223254262,
+      "transformer_minus_lmmse_nmse": -0.25233039339832497
+    },
+    {
+      "order": 64,
+      "transformer_run": "arch_medium_P64",
+      "transformer_nmse": 0.14324441319633643,
+      "lmmse_nmse": 0.403290223254262,
+      "transformer_minus_lmmse_nmse": -0.2600458100579256
+    },
+    {
+      "order": 64,
+      "transformer_run": "arch_small_P64",
+      "transformer_nmse": 0.1387261095603416,
+      "lmmse_nmse": 0.403290223254262,
+      "transformer_minus_lmmse_nmse": -0.2645641136939204
+    },
+    {
+      "order": 64,
+      "transformer_run": "transformer_p64",
+      "transformer_nmse": 0.1387261095603416,
+      "lmmse_nmse": 0.403290223254262,
+      "transformer_minus_lmmse_nmse": -0.2645641136939204
+    },
+    {
+      "order": 128,
+      "transformer_run": "window_P128_medium",
+      "transformer_nmse": 0.12366344663376447,
+      "lmmse_nmse": 0.3743375625523369,
+      "transformer_minus_lmmse_nmse": -0.25067411591857247
+    },
+    {
+      "order": 16,
+      "transformer_run": "window_P16_medium",
+      "transformer_nmse": 0.15638778337440962,
+      "lmmse_nmse": 0.45427844579434645,
+      "transformer_minus_lmmse_nmse": -0.29789066241993684
+    },
+    {
+      "order": 32,
+      "transformer_run": "window_P32_medium",
+      "transformer_nmse": 0.14647637380939618,
+      "lmmse_nmse": 0.43762222698411174,
+      "transformer_minus_lmmse_nmse": -0.29114585317471553
+    },
+    {
+      "order": 64,
+      "transformer_run": "window_P64_medium",
+      "transformer_nmse": 0.14324441319633643,
+      "lmmse_nmse": 0.403290223254262,
+      "transformer_minus_lmmse_nmse": -0.2600458100579256
+    },
+    {
+      "order": 8,
+      "transformer_run": "window_P8_medium",
+      "transformer_nmse": 0.18213470024948328,
+      "lmmse_nmse": 0.45455393628427954,
+      "transformer_minus_lmmse_nmse": -0.27241923603479623
+    }
+  ],
+  "attention_summary": [
+    {
+      "run_name": "arch_deep_P64",
+      "order": 64,
+      "attention_filter_correlation": 0.6498713107877347
+    },
+    {
+      "run_name": "arch_medium_P64",
+      "order": 64,
+      "attention_filter_correlation": 0.23230841762322987
+    },
+    {
+      "run_name": "arch_small_P64",
+      "order": 64,
+      "attention_filter_correlation": 0.1487859669389241
+    },
+    {
+      "run_name": "transformer_p64",
+      "order": 64,
+      "attention_filter_correlation": 0.1487859669389241
+    },
+    {
+      "run_name": "window_P128_medium",
+      "order": 128,
+      "attention_filter_correlation": 0.12419778350958875
+    },
+    {
+      "run_name": "window_P16_medium",
+      "order": 16,
+      "attention_filter_correlation": 0.20351443572566386
+    },
+    {
+      "run_name": "window_P32_medium",
+      "order": 32,
+      "attention_filter_correlation": 0.031165062583683803
+    },
+    {
+      "run_name": "window_P64_medium",
+      "order": 64,
+      "attention_filter_correlation": 0.23230841762322987
+    },
+    {
+      "run_name": "window_P8_medium",
+      "order": 8,
+      "attention_filter_correlation": -0.37377242798962534
+    }
+  ]
+}

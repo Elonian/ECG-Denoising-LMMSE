@@ -1,0 +1,10 @@
+2026-06-03 20:00:38 | INFO | root | Logging to /mntdatalora/src/ECG-Denoising-LMMSE/logs/evaluate_transformer_20260603_200038.log
+2026-06-03 20:00:38 | INFO | root | Runtime context:
+{
+  "config_path": "/mntdatalora/src/ECG-Denoising-LMMSE/configs/evaluation.yaml",
+  "hostname": "pod-4",
+  "output_dir": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/evaluation",
+  "platform": "Linux-6.8.0-124-generic-x86_64-with-glibc2.39",
+  "python": "3.12.3 (main, Mar  3 2026, 12:15:18) [GCC 13.3.0]"
+}
+2026-06-03 20:00:38 | INFO | root | Wrote Transformer evaluation to /mntdatalora/src/ECG-Denoising-LMMSE/outputs/evaluation

@@ -1,0 +1,8 @@
+{
+  "checkpoint": "/mntdatalora/src/ECG-Denoising-LMMSE/outputs/transformer/window_P8_medium/Final_Transformer.pt",
+  "order": 8,
+  "nmse": 0.18213469881669578,
+  "mse": 0.18368719518184662,
+  "samples": 8993,
+  "attention_samples": 512
+}

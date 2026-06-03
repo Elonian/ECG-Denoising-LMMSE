@@ -1,8 +1,7 @@
 papers/
-logs/
-outputs/
 cache_weights/
 __pycache__/
 *.pyc
+*.pt
 data/*
 !data/.gitkeep

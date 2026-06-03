@@ -1,0 +1,39 @@
+{
+  "run_name": "window_P8_medium",
+  "order": 8,
+  "model": {
+    "window_size": 8,
+    "d_model": 64,
+    "nhead": 4,
+    "num_layers": 3,
+    "dim_feedforward": 256,
+    "dropout": 0.1
+  },
+  "training": {
+    "epochs": 200,
+    "learning_rate": 0.001,
+    "batch_size": 256,
+    "validation_fraction": 0.15,
+    "weight_decay": 0.0,
+    "num_workers": 0,
+    "grad_clip_norm": 1.0,
+    "device": "auto",
+    "log_every_n_steps": 25
+  },
+  "training_summary": {
+    "train_windows": 17844,
+    "validation_windows": 3149,
+    "final_train_loss": 0.06404386812349629,
+    "final_validation_loss": 0.06708254703584078
+  },
+  "normalization": {
+    "mean": -1.2592136859893799,
+    "std": 1.1978462934494019
+  },
+  "metrics": {
+    "nmse": 0.18213470024948328,
+    "mse": 0.18368719518184662,
+    "samples": 8993
+  },
+  "log_path": "/mntdatalora/src/ECG-Denoising-LMMSE/logs/window_P8_medium_20260603_194558.log"
+}
