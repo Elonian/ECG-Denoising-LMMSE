@@ -28,6 +28,7 @@ def main() -> None:
     project_root = project_root_from_config(config)
     transformer_dir = resolve_path(config["inputs"]["transformer_dir"], project_root)
     data_dir = resolve_path(config["inputs"]["data_dir"], project_root)
+    lmmse_dir = resolve_path(config["inputs"]["lmmse_dir"], project_root)
     output_dir = resolve_path(config["output"]["output_dir"], project_root) / "transformer"
     output_dir.mkdir(parents=True, exist_ok=True)
     runs = collect_runs(transformer_dir)
@@ -36,6 +37,10 @@ def main() -> None:
         return
     plot_train_validation_losses(runs, output_dir / "transformer_train_validation_losses.png")
     plot_nmse_summary(runs, output_dir / "transformer_nmse_summary.png")
+    plot_grouped_losses(runs, output_dir)
+    plot_architecture_nmse(runs, output_dir / "architecture_nmse_comparison.png")
+    plot_window_nmse_comparison(runs, lmmse_dir, output_dir / "window_nmse_vs_lmmse.png")
+    plot_validation_gap_summary(runs, output_dir / "validation_gap_summary.png")
     plot_best_inference_waveform(runs, data_dir, output_dir / "transformer_inference_waveform.png")
     print(f"Wrote Transformer figures to {output_dir}")
 
@@ -85,6 +90,16 @@ def plot_train_validation_losses(runs: list[dict], output_path: Path) -> None:
     plt.close(fig)
 
 
+def plot_grouped_losses(runs: list[dict], output_dir: Path) -> None:
+    groups = [
+        ("architecture", [run for run in runs if run["run_name"].startswith("arch_")]),
+        ("window", [run for run in runs if run["run_name"].startswith("window_P")]),
+    ]
+    for name, group in groups:
+        if group:
+            plot_train_validation_losses(group, output_dir / f"{name}_train_validation_losses.png")
+
+
 def plot_nmse_summary(runs: list[dict], output_path: Path) -> None:
     ranked = sorted(runs, key=lambda run: float(run["metrics"]["nmse"]))
     labels = [run["run_name"] for run in ranked]
@@ -107,6 +122,95 @@ def plot_nmse_summary(runs: list[dict], output_path: Path) -> None:
     fig.tight_layout()
     fig.savefig(output_path)
     plt.close(fig)
+
+
+def plot_architecture_nmse(runs: list[dict], output_path: Path) -> None:
+    architecture_runs = sorted(
+        [run for run in runs if run["run_name"].startswith("arch_")],
+        key=lambda run: float(run["metrics"]["nmse"]),
+    )
+    if not architecture_runs:
+        return
+    labels = [run["run_name"].replace("arch_", "").replace("_P64", "") for run in architecture_runs]
+    nmse_values = [float(run["metrics"]["nmse"]) for run in architecture_runs]
+    fig, ax = plt.subplots(figsize=(9, 4.8), dpi=150)
+    bars = ax.bar(np.arange(len(labels)), nmse_values, color=["#1f77b4", "#2ca02c", "#ff7f0e"][: len(labels)])
+    for bar, value in zip(bars, nmse_values):
+        ax.text(bar.get_x() + bar.get_width() / 2, value, f"{value:.4f}", ha="center", va="bottom", fontsize=9)
+    ax.set_title("Architecture Sweep Test NMSE, P=64")
+    ax.set_ylabel("NMSE, lower is better")
+    ax.set_xticks(np.arange(len(labels)), labels=labels)
+    ax.grid(True, axis="y", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(output_path)
+    plt.close(fig)
+
+
+def plot_window_nmse_comparison(runs: list[dict], lmmse_dir: Path, output_path: Path) -> None:
+    window_runs = [run for run in runs if run["run_name"].startswith("window_P")]
+    if not window_runs:
+        return
+    transformer_by_order = {int(run["order"]): float(run["metrics"]["nmse"]) for run in window_runs}
+    lmmse_by_order = load_lmmse_nmse(lmmse_dir)
+    orders = sorted(set(transformer_by_order) | set(lmmse_by_order))
+    fig, ax = plt.subplots(figsize=(9.5, 5), dpi=150)
+    if lmmse_by_order:
+        ax.plot(
+            orders,
+            [lmmse_by_order.get(order, np.nan) for order in orders],
+            marker="o",
+            linewidth=2.0,
+            label="LMMSE",
+        )
+    ax.plot(
+        orders,
+        [transformer_by_order.get(order, np.nan) for order in orders],
+        marker="s",
+        linewidth=2.0,
+        label="Transformer",
+    )
+    ax.set_title("Window Size Sweep: Transformer vs LMMSE")
+    ax.set_xlabel("Filter/window order P")
+    ax.set_ylabel("Test NMSE, lower is better")
+    ax.set_xticks(orders)
+    ax.grid(True, alpha=0.3)
+    ax.legend(frameon=False)
+    fig.tight_layout()
+    fig.savefig(output_path)
+    plt.close(fig)
+
+
+def plot_validation_gap_summary(runs: list[dict], output_path: Path) -> None:
+    rows = []
+    for run in runs:
+        summary = run.get("training_summary", {})
+        train = summary.get("final_train_loss")
+        validation = summary.get("final_validation_loss")
+        if train is None or validation is None:
+            continue
+        rows.append((run["run_name"], float(train), float(validation), float(validation) - float(train)))
+    if not rows:
+        return
+    rows.sort(key=lambda row: row[3])
+    labels = [row[0] for row in rows]
+    x = np.arange(len(rows))
+    fig, ax = plt.subplots(figsize=(max(9, len(rows) * 0.75), 4.8), dpi=150)
+    ax.bar(x, [row[3] for row in rows], color="#9467bd")
+    ax.set_title("Final Validation Gap By Run")
+    ax.set_ylabel("Validation loss minus train loss")
+    ax.set_xticks(x, labels=labels, rotation=35, ha="right")
+    ax.grid(True, axis="y", alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(output_path)
+    plt.close(fig)
+
+
+def load_lmmse_nmse(lmmse_dir: Path) -> dict[int, float]:
+    results_path = lmmse_dir / "lmmse_results.json"
+    if not results_path.exists():
+        return {}
+    payload = json.loads(results_path.read_text(encoding="utf-8"))
+    return {int(row["order"]): float(row["nmse"]) for row in payload.get("results", [])}
 
 
 def plot_best_inference_waveform(runs: list[dict], data_dir: Path, output_path: Path) -> None:
