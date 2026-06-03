@@ -1,0 +1,25 @@
+project_root: /mntdatalora/src/ECG-Denoising-LMMSE
+
+experiment:
+  name: lmmse
+  seed: 0
+
+data:
+  data_dir: data
+  clean_train: s_train.npy
+  noisy_train: y_train.npy
+  clean_test: s_test.npy
+  noisy_test: y_test.npy
+
+lmmse:
+  orders: [8, 16, 32, 64, 128]
+  autocorrelation_max_lag: 256
+  ridge: 1.0e-8
+  welch:
+    nperseg: 512
+    noverlap: 256
+    window: hann
+
+output:
+  output_dir: outputs/lmmse
+  log_dir: logs

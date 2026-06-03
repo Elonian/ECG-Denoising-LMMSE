@@ -1,0 +1,24 @@
+project_root: /mntdatalora/src/ECG-Denoising-LMMSE
+
+data:
+  data_dir: data
+  arrays:
+    clean_train: s_train.npy
+    noisy_train: y_train.npy
+    clean_test: s_test.npy
+    noisy_test: y_test.npy
+  metadata: dataset_metadata.json
+  sampling_rate_hz: 360
+  channel_index: 0
+  split:
+    start_sample: 108000
+    train_samples: 21000
+    test_samples: 9000
+  raw_records:
+    clean_record: mitdb/1.0.0/118
+    noisy_record: nstdb/1.0.0/118e06
+    noise_records:
+      - nstdb/1.0.0/bw
+      - nstdb/1.0.0/em
+      - nstdb/1.0.0/ma
+

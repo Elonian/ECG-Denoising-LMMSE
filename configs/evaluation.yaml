@@ -1,0 +1,18 @@
+project_root: /mntdatalora/src/ECG-Denoising-LMMSE
+
+inputs:
+  data_dir: data
+  lmmse_dir: outputs/lmmse
+  transformer_dir: outputs/transformer
+  visualiser_dir: outputs/visualiser
+
+evaluation:
+  transformer_run_glob: "*/metrics.json"
+  attention_filename: inference/cls_attention_mean.npy
+  lmmse_filter_file: lmmse_filters.npz
+  lmmse_results_file: lmmse_results.json
+
+output:
+  output_dir: outputs/evaluation
+  log_dir: logs
+

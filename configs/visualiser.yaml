@@ -1,0 +1,11 @@
+project_root: /mntdatalora/src/ECG-Denoising-LMMSE
+
+inputs:
+  data_dir: data
+  lmmse_dir: outputs/lmmse
+  transformer_dir: outputs/transformer
+
+output:
+  output_dir: outputs/visualiser
+  log_dir: logs
+

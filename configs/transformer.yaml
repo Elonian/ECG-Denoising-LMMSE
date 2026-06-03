@@ -1,0 +1,39 @@
+project_root: /mntdatalora/src/ECG-Denoising-LMMSE
+
+experiment:
+  name: transformer_p64
+  seed: 0
+
+data:
+  data_dir: data
+  clean_train: s_train.npy
+  noisy_train: y_train.npy
+  clean_test: s_test.npy
+  noisy_test: y_test.npy
+  normalize_with_noisy_train: true
+
+window:
+  order: 64
+
+model:
+  d_model: 32
+  nhead: 4
+  num_layers: 2
+  dim_feedforward: 128
+  dropout: 0.1
+
+training:
+  epochs: 200
+  learning_rate: 1.0e-3
+  batch_size: 256
+  validation_fraction: 0.15
+  weight_decay: 0.0
+  num_workers: 0
+  grad_clip_norm: 1.0
+  device: auto
+  log_every_n_steps: 25
+
+output:
+  output_dir: outputs/transformer
+  log_dir: logs
+  checkpoint_name: Final_Transformer.pt
