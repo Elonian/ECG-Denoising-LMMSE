@@ -40,6 +40,9 @@ def write_results_summary(output_path: Path, output_dir: Path) -> None:
     lmmse = json.loads((output_dir / "lmmse_evaluation.json").read_text(encoding="utf-8"))
     transformer = json.loads((output_dir / "transformer_evaluation.json").read_text(encoding="utf-8"))
     comparison = json.loads((output_dir / "method_comparison.json").read_text(encoding="utf-8"))
+    run_names = {row["run_name"] for row in transformer.get("runs", [])}
+    architecture_runs = sorted(name for name in run_names if name.startswith("arch_"))
+    window_runs = sorted(name for name in run_names if name.startswith("window_P"))
     lines = [
         "# ECG Denoising Results Summary",
         "",
@@ -64,12 +67,14 @@ def write_results_summary(output_path: Path, output_dir: Path) -> None:
     else:
         lines.append("- No Transformer runs are present yet.")
     lines.append(f"- Method comparison rows present: {len(comparison['comparison_rows'])}.")
+    lines.append(f"- Architecture sweep runs present: {', '.join(architecture_runs) if architecture_runs else 'none'}.")
+    lines.append(f"- Window sweep runs present: {', '.join(window_runs) if window_runs else 'none'}.")
     lines.extend(
         [
             "",
             "## Notes",
             "",
-            "For the full Transformer comparison, run `execution_scripts/run_transformer_sweep.sh` and then rebuild the evaluation summary.",
+            "The current summary was rebuilt from the completed LMMSE sweep, Transformer architecture sweep, Transformer window sweep, inference outputs, and attention-vs-filter comparisons.",
             "",
         ]
     )
