@@ -1,28 +1,18 @@
-# ECG-Denoising-LMMSE
+# ECG Denoising LMMSE
 
 Author: Varun Moparthi
 
 ## Abstract
 
-ECG-Denoising-LMMSE implements a complete ECG noise-removal study on paired PhysioNet signals, using clean ECG from MIT-BIH record `118` and noisy ECG from NSTDB record `118e06`. The project constructs aligned train/test arrays, characterizes the signal and noise with autocorrelation and Welch spectral estimates, derives a sample-wise LMMSE estimator from lagged noisy ECG windows, and compares that linear estimator against Transformer encoder denoisers trained on the same causal window formulation.
+ECG Denoising LMMSE implements a complete ECG noise removal study on paired PhysioNet signals, using clean ECG from MIT BIH record `118` and noisy ECG from NSTDB record `118e06`. The project constructs aligned train and test arrays, characterizes the signal and noise with autocorrelation and Welch spectral estimates, derives a sample wise LMMSE estimator from lagged noisy ECG windows, and compares that linear estimator against Transformer encoder denoisers trained on the same causal window formulation.
 
-The denoising task is treated as clean-sample reconstruction from a local noisy context, where each model receives `y_P[n] = [y[n], y[n-1], ..., y[n-P+1]]^T` and predicts `s[n]`. The LMMSE branch solves the empirical normal equation `R_yy h = r_sy` for multiple filter orders, while the Transformer branch learns a nonlinear CLS-token representation over the same window sizes. The final analysis includes order sweeps, architecture sweeps, train/validation loss curves, test NMSE tables, denoised waveform views, and attention-vs-filter comparisons.
+The denoising task is treated as clean sample reconstruction from a local noisy context, where each model receives `y_P[n] = [y[n], y[n-1], ..., y[n-P+1]]^T` and predicts `s[n]`. The LMMSE branch solves the empirical normal equation `R_yy h = r_sy` for multiple filter orders, while the Transformer branch learns a nonlinear CLS token representation over the same window sizes. The final analysis includes order sweeps, architecture sweeps, train and validation loss curves, test NMSE tables, denoised waveform views, and attention and filter comparisons.
 
-On the completed test split, the best LMMSE filter reaches NMSE `0.37433756` at `P=128`, while the best Transformer run reaches NMSE `0.12366345` with `window_P128_medium`. The result shows that learned nonlinear temporal context modeling provides a much stronger denoising fit than the linear LMMSE estimator for this ECG/noise pairing, while still keeping the experiment interpretable through matched window orders and filter/attention diagnostics.
-
-## Highlights
-
-- Builds aligned clean/noisy ECG training and test arrays from PhysioNet MIT-BIH record `118` and NSTDB record `118e06`.
-- Estimates signal and noise autocorrelation up to lag `256`, plus Welch PSD using a Hann window of length `512` with `50%` overlap.
-- Trains and evaluates LMMSE filters for `P in {8, 16, 32, 64, 128}`.
-- Trains Transformer encoder denoisers with both architecture sweeps and window-size sweeps.
-- Stores train and validation loss curves for every Transformer run.
-- Extracts CLS attention weights and compares them against normalized LMMSE filter magnitudes.
-- Tracks generated logs, metrics, summaries, NumPy outputs, and visualizations; model checkpoint `.pt` files remain ignored.
+On the completed test split, the best LMMSE filter reaches NMSE `0.37433756` at `P=128`, while the best Transformer run reaches NMSE `0.12366345` with `window_P128_medium`. The result shows that learned nonlinear temporal context modeling provides a much stronger denoising fit than the linear LMMSE estimator for this ECG and noise pairing, while still keeping the experiment interpretable through matched window orders and filter and attention diagnostics.
 
 ## Data Source
 
-The data pipeline creates four one-dimensional NumPy arrays:
+The data pipeline creates four one dimensional NumPy arrays:
 
 | File | Meaning | Samples |
 | --- | --- | ---: |
@@ -31,116 +21,386 @@ The data pipeline creates four one-dimensional NumPy arrays:
 | `data/s_test.npy` | clean test ECG | 9000 |
 | `data/y_test.npy` | noisy test ECG | 9000 |
 
-The clean ECG comes from PhysioNet MIT-BIH Arrhythmia Database record `118`. The noisy ECG comes from MIT-BIH Noise Stress Test Database record `118e06`. The split begins at sample `108000`, corresponding to `300` seconds at `360 Hz`, so the selected segment lies in the noisy portion of the NSTDB record. The project stores metadata in `data/dataset_metadata.json`, but the data arrays and downloaded WFDB records are ignored by Git so the repository stays light.
+The clean ECG comes from PhysioNet MIT BIH Arrhythmia Database record `118`. The noisy ECG comes from MIT BIH Noise Stress Test Database record `118e06`. The split begins at sample `108000`, corresponding to `300` seconds at `360 Hz`, so the selected segment lies in the noisy portion of the NSTDB record. The project stores metadata in `data/dataset_metadata.json`, but the data arrays and downloaded WFDB records are ignored by Git so the repository stays light.
 
 ## Method
 
-The denoising problem is modeled as
+### Observation Model And Windowing
 
-```text
+The noisy ECG is modeled as an additive corruption of the clean cardiac trace:
+
+$$
 y[n] = s[n] + w[n],
-```
+$$
 
-where `s[n]` is the clean ECG, `w[n]` is additive noise, and `y[n]` is the observed noisy ECG. Both the LMMSE and Transformer methods use a causal lag window of length `P`:
+where $s[n]$ is the clean ECG sample, $w[n]$ is the noise process, and $y[n]$ is the measured noisy ECG. Both denoisers are trained and evaluated on a causal lag window of length $P$:
 
-```text
-y_P[n] = [y[n], y[n-1], ..., y[n-P+1]]^T.
-```
+$$
+\mathbf{y}_P[n] =
+\begin{bmatrix}
+y[n] & y[n-1] & \cdots & y[n-P+1]
+\end{bmatrix}^{\mathsf T}.
+$$
 
-The target is the clean sample aligned with the newest value in the window, `s[n]`.
+The aligned supervised target is the newest clean sample $s[n]$. For a signal segment of length $N$, the number of usable supervised examples is
 
-### Signal Statistics
+$$
+M = N - P + 1.
+$$
 
-The code estimates biased autocorrelation for the clean signal and training noise:
+The design matrix used by both branches is
 
-```text
-r_x[k] = (1 / N) sum_{n=0}^{N-|k|-1} x[n+|k|] x[n].
-```
+$$
+\mathbf{Y}_P =
+\begin{bmatrix}
+\mathbf{y}_P[P-1]^{\mathsf T} \\
+\mathbf{y}_P[P]^{\mathsf T} \\
+\vdots \\
+\mathbf{y}_P[N-1]^{\mathsf T}
+\end{bmatrix}
+\in \mathbb{R}^{M \times P},
+$$
 
-It also estimates the power spectral density with Welch's method. For each segment `x_m[n]`, the periodogram is averaged as
+with target vector
 
-```text
-S_xx[f] = average_m |FFT{a[n] x_m[n]}|^2,
-```
+$$
+\mathbf{s}_P =
+\begin{bmatrix}
+s[P-1] & s[P] & \cdots & s[N-1]
+\end{bmatrix}^{\mathsf T}.
+$$
 
-where `a[n]` is the Hann analysis window. The generated evaluation found that the training noise is not well approximated as white: the noise autocorrelation whiteness ratio is `0.998270`, the clean PSD peak is near `6.328 Hz`, and the noise PSD peak is near `0.703 Hz`.
+The implementation uses this exact lagged construction in `utils/data_io.py`. The window is reversed so the first coordinate is the most recent noisy sample $y[n]$, matching the causal filter notation above.
 
-### LMMSE Filter
+### Signal And Noise Statistics
 
-The LMMSE filter predicts the clean sample with a linear estimator:
+Before denoising, the project estimates the clean ECG autocorrelation and the training noise autocorrelation. The noise is computed directly from the paired arrays:
 
-```text
-s_hat[n] = h^T y_P[n].
-```
+$$
+w_{\text{train}}[n] = y_{\text{train}}[n] - s_{\text{train}}[n].
+$$
 
-The optimal filter minimizes mean squared error:
+For a one dimensional sequence $x[n]$, the biased autocorrelation estimate is
 
-```text
-h* = argmin_h E[(s[n] - h^T y_P[n])^2].
-```
+$$
+\hat r_x[k] =
+\frac{1}{N}
+\sum_{n=0}^{N-|k|-1}
+x[n+|k|]x[n],
+\qquad
+k = -(L-1), \ldots, L-1.
+$$
 
-Setting the gradient to zero gives the normal equation:
+The experiment uses $L = 256$. If the noise were close to white, $\hat r_w[k]$ would concentrate strongly at $k=0$ and be small away from zero. The generated evaluation reports a noise autocorrelation whiteness ratio of `0.998270`, so the selected noise segment is not well described by an ideal white noise model.
 
-```text
-R_yy h = r_sy,
-```
+The spectral analysis uses Welch PSD estimation with Hann windows of length $512$ and overlap $256$. For segment $m$, window $a[t]$, and DFT length $K$, the periodogram is
+
+$$
+\hat S_{x,m}[q] =
+\frac{1}{F_s U}
+\left|
+\sum_{t=0}^{K-1} a[t]x_m[t]e^{-j2\pi qt/K}
+\right|^2,
+$$
+
+where $F_s = 360$ Hz and $U = \sum_t a[t]^2$. Welch's estimate averages segment periodograms:
+
+$$
+\hat S_x[q] = \frac{1}{B}\sum_{m=1}^{B}\hat S_{x,m}[q].
+$$
+
+The resulting clean ECG PSD peaks near `6.328 Hz`, while the noise PSD peaks near `0.703 Hz`.
+
+### LMMSE Derivation
+
+The LMMSE branch restricts the denoiser to a linear function of the noisy window:
+
+$$
+\hat s[n] = \mathbf{h}^{\mathsf T}\mathbf{y}_P[n],
+$$
+
+where $\mathbf{h}\in\mathbb{R}^P$ is the filter coefficient vector. The population objective is
+
+$$
+J(\mathbf{h}) =
+\mathbb{E}
+\left[
+\left(
+s[n] - \mathbf{h}^{\mathsf T}\mathbf{y}_P[n]
+\right)^2
+\right].
+$$
+
+Expanding the quadratic gives
+
+$$
+J(\mathbf{h}) =
+\mathbb{E}[s[n]^2]
+- 2\mathbf{h}^{\mathsf T}\mathbf{r}_{sy}
++ \mathbf{h}^{\mathsf T}\mathbf{R}_{yy}\mathbf{h},
+$$
 
 with
 
-```text
-R_yy = E[y_P[n] y_P[n]^T]
-r_sy = E[y_P[n] s[n]].
-```
+$$
+\mathbf{R}_{yy} =
+\mathbb{E}
+\left[
+\mathbf{y}_P[n]\mathbf{y}_P[n]^{\mathsf T}
+\right],
+\qquad
+\mathbf{r}_{sy} =
+\mathbb{E}
+\left[
+\mathbf{y}_P[n]s[n]
+\right].
+$$
 
-The implemented empirical estimates are
+Taking the gradient and setting it to zero gives the normal equation:
 
-```text
-R_yy_hat = (1 / M) Y^T Y
-r_sy_hat = (1 / M) Y^T s,
-```
+$$
+\nabla_{\mathbf{h}}J(\mathbf{h})
+= -2\mathbf{r}_{sy} + 2\mathbf{R}_{yy}\mathbf{h}
+= \mathbf{0},
+$$
 
-where each row of `Y` is one lagged noisy ECG window. The filter is solved as
+so
 
-```text
-h_hat = (R_yy_hat + lambda I)^(-1) r_sy_hat,
-```
+$$
+\mathbf{R}_{yy}\mathbf{h}^{\star} = \mathbf{r}_{sy},
+\qquad
+\mathbf{h}^{\star} = \mathbf{R}_{yy}^{-1}\mathbf{r}_{sy}.
+$$
 
-using a small ridge value `lambda = 1e-8` for numerical stability.
+The implementation uses empirical training estimates:
+
+$$
+\hat{\mathbf{R}}_{yy} =
+\frac{1}{M}\mathbf{Y}_P^{\mathsf T}\mathbf{Y}_P,
+\qquad
+\hat{\mathbf{r}}_{sy} =
+\frac{1}{M}\mathbf{Y}_P^{\mathsf T}\mathbf{s}_P.
+$$
+
+A small ridge term stabilizes the solve:
+
+$$
+\hat{\mathbf{h}} =
+\left(
+\hat{\mathbf{R}}_{yy} + \lambda\mathbf{I}
+\right)^{-1}
+\hat{\mathbf{r}}_{sy},
+\qquad
+\lambda = 10^{-8}.
+$$
+
+Inference applies the learned filter to test windows:
+
+$$
+\hat{\mathbf{s}}_{\text{test}} =
+\mathbf{Y}_{P,\text{test}}\hat{\mathbf{h}}.
+$$
+
+The project estimates separate filters for $P\in\{8,16,32,64,128\}$, stores each filter in `outputs/lmmse/lmmse_order_<P>.npz`, and stores the full sweep in `outputs/lmmse/lmmse_results.json`.
 
 ### Transformer Denoiser
 
-The Transformer uses the same lag window, but learns a nonlinear mapping from the noisy context to the clean sample. Each scalar window value is projected into an embedding, a trainable CLS token is prepended, sinusoidal positional encoding is added, and the sequence is passed through a Transformer encoder stack:
+The Transformer branch keeps the same supervised window target but replaces the linear filter with a learned nonlinear sequence model:
 
-```text
-e_i = W_in x_i + b_in
-Z_0 = [c, e_1, ..., e_P] + PE
-Z_l = TransformerEncoderLayer_l(Z_{l-1})
-s_hat[n] = W_out LayerNorm(Z_L[CLS]) + b_out.
-```
+$$
+\hat s[n] = f_{\theta}(\mathbf{y}_P[n]).
+$$
 
-Training minimizes mean squared error on normalized ECG samples:
+First, every scalar in the window is normalized using the noisy training statistics:
 
-```text
-L(theta) = (1 / M) sum_n (s_norm[n] - f_theta(y_P_norm[n]))^2.
-```
+$$
+\tilde x = \frac{x - \mu_y}{\sigma_y},
+\qquad
+\mu_y = \operatorname{mean}(y_{\text{train}}),
+\qquad
+\sigma_y = \operatorname{std}(y_{\text{train}}).
+$$
 
-Normalization is computed from the noisy training signal:
+For a normalized window $\tilde{\mathbf{y}}_P[n]$, each scalar is projected into a $d_{\text{model}}$ dimensional token:
 
-```text
-x_norm = (x - mean(y_train)) / std(y_train).
-```
+$$
+\mathbf{e}_i = \mathbf{W}_{in}\tilde y_i + \mathbf{b}_{in},
+\qquad
+i = 1,\ldots,P.
+$$
 
-After inference, predictions are mapped back to the original ECG amplitude scale before computing metrics.
+A learned CLS token $\mathbf{c}$ is prepended, producing a sequence of length $P+1$:
 
-### Evaluation Metric
+$$
+\mathbf{Z}^{(0)} =
+\begin{bmatrix}
+\mathbf{c};
+\mathbf{e}_1;
+\ldots;
+\mathbf{e}_P
+\end{bmatrix}
++ \operatorname{PE}.
+$$
 
-All denoising results are evaluated using normalized mean squared error:
+The positional encoding is sinusoidal:
 
-```text
-NMSE = sum_n (s[n] - s_hat[n])^2 / sum_n s[n]^2.
-```
+$$
+\operatorname{PE}_{pos,2i} =
+\sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right),
+\qquad
+\operatorname{PE}_{pos,2i+1} =
+\cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right).
+$$
 
-Lower NMSE means the denoised signal is closer to the clean reference.
+Each encoder block uses multi-head self-attention followed by a GELU feedforward network. For one attention head,
+
+$$
+\mathbf{Q} = \mathbf{Z}\mathbf{W}_Q,
+\qquad
+\mathbf{K} = \mathbf{Z}\mathbf{W}_K,
+\qquad
+\mathbf{V} = \mathbf{Z}\mathbf{W}_V,
+$$
+
+and
+
+$$
+\operatorname{Attn}(\mathbf{Z}) =
+\operatorname{softmax}
+\left(
+\frac{\mathbf{Q}\mathbf{K}^{\mathsf T}}{\sqrt{d_k}}
+\right)
+\mathbf{V}.
+$$
+
+Multi-head attention concatenates the head outputs and projects them back to the model dimension:
+
+$$
+\operatorname{MHA}(\mathbf{Z}) =
+\operatorname{Concat}
+\left(
+\operatorname{head}_1,\ldots,\operatorname{head}_H
+\right)\mathbf{W}_O.
+$$
+
+The implemented block uses residual connections and layer normalization:
+
+$$
+\mathbf{U}^{(\ell)} =
+\operatorname{LayerNorm}
+\left(
+\mathbf{Z}^{(\ell-1)} +
+\operatorname{Dropout}
+\left(
+\operatorname{MHA}(\mathbf{Z}^{(\ell-1)})
+\right)
+\right),
+$$
+
+then
+
+$$
+\mathbf{Z}^{(\ell)} =
+\operatorname{LayerNorm}
+\left(
+\mathbf{U}^{(\ell)} +
+\operatorname{Dropout}
+\left(
+\mathbf{W}_2
+\operatorname{GELU}
+\left(
+\mathbf{W}_1\mathbf{U}^{(\ell)}+\mathbf{b}_1
+\right)
++ \mathbf{b}_2
+\right)
+\right).
+$$
+
+After $L$ encoder layers, the CLS state is mapped to one clean sample estimate:
+
+$$
+\hat{\tilde s}[n] =
+\mathbf{w}_{out}^{\mathsf T}
+\operatorname{LayerNorm}
+\left(
+\mathbf{Z}^{(L)}_{\text{CLS}}
+\right)
++ b_{out}.
+$$
+
+The estimate is then denormalized:
+
+$$
+\hat s[n] =
+\sigma_y\hat{\tilde s}[n] + \mu_y.
+$$
+
+### Training Objective And Sweeps
+
+The model is trained with mean squared error on normalized clean ECG targets:
+
+$$
+\mathcal{L}(\theta) =
+\frac{1}{M_{\text{train}}}
+\sum_{n}
+\left(
+\tilde s[n] -
+f_{\theta}(\tilde{\mathbf{y}}_P[n])
+\right)^2.
+$$
+
+The train split uses the first `85%` of generated training windows and the validation split uses the final `15%`. Every Transformer run trains for `200` epochs with Adam, learning rate `1e-3`, batch size `256`, dropout `0.1`, and gradient clipping at norm `1.0`.
+
+The architecture sweep fixes $P=64$ and compares:
+
+| Name | `d_model` | heads | layers | feedforward |
+| --- | ---: | ---: | ---: | ---: |
+| `small` | 32 | 4 | 2 | 128 |
+| `medium` | 64 | 4 | 3 | 256 |
+| `deep` | 64 | 8 | 4 | 256 |
+
+The window sweep fixes the `medium` architecture and evaluates $P\in\{8,16,32,64,128\}$.
+
+### Inference And Evaluation
+
+LMMSE inference applies $\hat{\mathbf{h}}$ to every test window. Transformer inference runs the test windows through the trained model, denormalizes predictions, and aligns them to the same target convention $s[P-1],\ldots,s[N-1]$.
+
+The primary metric is normalized mean squared error:
+
+$$
+\operatorname{NMSE} =
+\frac{
+\sum_n
+\left(
+s[n] - \hat s[n]
+\right)^2
+}{
+\sum_n s[n]^2
+}.
+$$
+
+The code also stores mean squared error:
+
+$$
+\operatorname{MSE} =
+\frac{1}{N}
+\sum_n
+\left(
+s[n] - \hat s[n]
+\right)^2.
+$$
+
+For interpretability, inference saves the average CLS attention distribution. For each $P$, the analysis normalizes both the attention vector and the absolute LMMSE coefficients:
+
+$$
+\alpha_k =
+\frac{\bar a_k}{\sum_j \bar a_j},
+\qquad
+\beta_k =
+\frac{|\hat h_k|}{\sum_j |\hat h_j|}.
+$$
+
+The plotted attention and filter comparison shows whether the Transformer focuses on temporal positions similar to those emphasized by the linear LMMSE filter.
 
 ## Results
 
@@ -177,6 +437,10 @@ The best architecture sweep run is `arch_small_P64`. In the window sweep, increa
 
 ![Transformer architecture comparison](outputs/visualiser/transformer/architecture_nmse_comparison.png)
 
+The waveform view below shows the strongest Transformer run, `window_P128_medium`, over an aligned test segment. The grey curve is the noisy ECG, the black curve is the clean reference, and the blue curve is the Transformer estimate. The lower panel shows the residual error after denoising.
+
+![Transformer denoising waveform](outputs/visualiser/transformer/transformer_inference_waveform.png)
+
 ### LMMSE vs Transformer
 
 | Transformer run | P | LMMSE NMSE | Transformer NMSE | Difference |
@@ -200,7 +464,7 @@ Across every comparable order, the Transformer has a lower NMSE than the LMMSE f
 
 For interpretability, the pipeline extracts the mean CLS attention distribution from Transformer inference and compares it to the normalized absolute LMMSE filter coefficients. This does not require the Transformer attention to match the linear filter exactly; instead, it gives a diagnostic view of whether the learned model emphasizes similar temporal positions.
 
-| Run | P | Attention-filter correlation |
+| Run | P | Attention and filter correlation |
 | --- | ---: | ---: |
 | `window_P8_medium` | 8 | -0.373772 |
 | `window_P16_medium` | 16 | 0.203514 |
@@ -214,11 +478,11 @@ For interpretability, the pipeline extracts the mean CLS attention distribution 
 
 | Figure | Path |
 | --- | --- |
-| Clean/noisy ECG preview | `outputs/visualiser/lmmse/signal_preview.png` |
+| Clean and noisy ECG preview | `outputs/visualiser/lmmse/signal_preview.png` |
 | Autocorrelation | `outputs/visualiser/lmmse/autocorrelation.png` |
 | Welch PSD | `outputs/visualiser/lmmse/welch_psd.png` |
 | LMMSE filters | `outputs/visualiser/lmmse/lmmse_filters.png` |
-| Transformer all-run loss curves | `outputs/visualiser/transformer/transformer_train_validation_losses.png` |
+| Transformer all run loss curves | `outputs/visualiser/transformer/transformer_train_validation_losses.png` |
 | Transformer window loss curves | `outputs/visualiser/transformer/window_train_validation_losses.png` |
 | Transformer inference waveform | `outputs/visualiser/transformer/transformer_inference_waveform.png` |
 | Validation gap summary | `outputs/visualiser/transformer/validation_gap_summary.png` |
@@ -228,7 +492,7 @@ For interpretability, the pipeline extracts the mean CLS attention distribution 
 ```text
 configs/             YAML configuration for data, LMMSE, Transformer, sweeps, visualizers, and evaluation
 data/                Local PhysioNet arrays and metadata; ignored except data/.gitkeep
-evaluation/          Metric summaries, method comparison, and attention-vs-filter analysis
+evaluation/          Metric summaries, method comparison, and attention and filter analysis
 execution_scripts/   Shell entry points for reproducible pipeline runs
 logs/                Tracked run logs from data creation, LMMSE, Transformer training, and evaluation
 models/              ECG Transformer denoiser definition
@@ -238,66 +502,6 @@ scripts/             Data creation, LMMSE execution, Transformer training, sweep
 utils/               Config loading, PhysioNet utilities, metrics, logging, and signal processing helpers
 visualiser/          Plot builders for LMMSE, Transformer, and final figures
 ```
-
-## Reproducing The Pipeline
-
-Install dependencies:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-Create or refresh the train/test arrays:
-
-```bash
-./execution_scripts/create_training_test_set.sh
-```
-
-Run the full core pipeline:
-
-```bash
-./execution_scripts/run_full_pipeline.sh
-```
-
-Run the full Transformer sweep:
-
-```bash
-./execution_scripts/run_transformer_sweep.sh
-```
-
-Regenerate inference outputs, figures, and summaries:
-
-```bash
-./execution_scripts/run_transformer_inference.sh
-./execution_scripts/build_figures.sh
-./execution_scripts/run_evaluation.sh
-```
-
-The shell scripts install `requirements.txt` before running their Python commands. This makes each entry point usable from a fresh environment as long as Python and the required system libraries are available.
-
-## Key Artifacts
-
-| Artifact | Purpose |
-| --- | --- |
-| `outputs/lmmse/lmmse_results.json` | LMMSE order sweep metrics |
-| `outputs/lmmse/lmmse_filters.npz` | Estimated filters for each `P` |
-| `outputs/transformer/*/history.csv` | Per-epoch train and validation losses |
-| `outputs/transformer/*/metrics.json` | Transformer test metrics and model config |
-| `outputs/transformer/*/inference/cls_attention_mean.npy` | Mean CLS attention for attention-vs-filter plots |
-| `outputs/evaluation/results_summary.md` | Coverage and final result summary |
-| `outputs/evaluation/method_comparison.md` | LMMSE vs Transformer comparison table |
-
-## Git Tracking Notes
-
-The repository tracks logs and generated visual/evaluation outputs because they document the completed runs. The following are intentionally ignored:
-
-- `data/*`, except `data/.gitkeep`
-- `*.pt` model checkpoints
-- Python cache files
-- `cache_weights/`
-- `papers/`
-
-This keeps the repository reproducible and inspectable without committing heavy raw data or checkpoint files.
 
 ## License
 
