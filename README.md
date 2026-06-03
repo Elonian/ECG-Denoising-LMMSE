@@ -10,6 +10,25 @@ The denoising task is treated as clean sample reconstruction from a local noisy 
 
 On the completed test split, the best LMMSE filter reaches NMSE `0.37433756` at `P=128`, while the best Transformer run reaches NMSE `0.12366345` with `window_P128_medium`. The result shows that learned nonlinear temporal context modeling provides a much stronger denoising fit than the linear LMMSE estimator for this ECG and noise pairing, while still keeping the experiment interpretable through matched window orders and filter and attention diagnostics.
 
+## Output Gallery
+
+The best qualitative denoising example comes from `window_P128_medium`, the strongest Transformer run in the completed sweep. The grey trace shows the noisy ECG, the black trace is the clean reference, and the blue trace is the Transformer estimate. The residual panel below the waveform shows the remaining error after denoising, making the signal recovery easier to inspect than a metric table alone.
+
+![Transformer denoising waveform](outputs/visualiser/transformer/transformer_inference_waveform.png)
+
+Additional tracked visual outputs:
+
+| Figure | Path |
+| --- | --- |
+| Clean and noisy ECG preview | `outputs/visualiser/lmmse/signal_preview.png` |
+| Autocorrelation | `outputs/visualiser/lmmse/autocorrelation.png` |
+| Welch PSD | `outputs/visualiser/lmmse/welch_psd.png` |
+| LMMSE filters | `outputs/visualiser/lmmse/lmmse_filters.png` |
+| Transformer train and validation losses | `outputs/visualiser/transformer/window_train_validation_losses.png` |
+| Transformer architecture comparison | `outputs/visualiser/transformer/architecture_nmse_comparison.png` |
+| LMMSE and Transformer NMSE comparison | `outputs/visualiser/transformer/window_nmse_vs_lmmse.png` |
+| Attention and LMMSE filter comparison | `outputs/evaluation/attention_vs_lmmse_P128.png` |
+
 ## Data Source
 
 The data pipeline creates four one dimensional NumPy arrays:
@@ -216,9 +235,9 @@ First, every scalar in the window is normalized using the noisy training statist
 $$
 \tilde x = \frac{x - \mu_y}{\sigma_y},
 \qquad
-\mu_y = \operatorname{mean}(y_{\text{train}}),
+\mu_y = \mathrm{mean}(y_{\text{train}}),
 \qquad
-\sigma_y = \operatorname{std}(y_{\text{train}}).
+\sigma_y = \mathrm{std}(y_{\text{train}}).
 $$
 
 For a normalized window $\tilde{\mathbf{y}}_P[n]$, each scalar is projected into a $d_{\text{model}}$ dimensional token:
@@ -234,21 +253,21 @@ A learned CLS token $\mathbf{c}$ is prepended, producing a sequence of length $P
 $$
 \mathbf{Z}^{(0)} =
 \begin{bmatrix}
-\mathbf{c};
-\mathbf{e}_1;
-\ldots;
+\mathbf{c} \\
+\mathbf{e}_1 \\
+\vdots \\
 \mathbf{e}_P
 \end{bmatrix}
-+ \operatorname{PE}.
++ \mathrm{PE}.
 $$
 
 The positional encoding is sinusoidal:
 
 $$
-\operatorname{PE}_{pos,2i} =
+\mathrm{PE}_{pos,2i} =
 \sin\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right),
 \qquad
-\operatorname{PE}_{pos,2i+1} =
+\mathrm{PE}_{pos,2i+1} =
 \cos\left(\frac{pos}{10000^{2i/d_{\text{model}}}}\right).
 $$
 
@@ -265,8 +284,8 @@ $$
 and
 
 $$
-\operatorname{Attn}(\mathbf{Z}) =
-\operatorname{softmax}
+\mathrm{Attn}(\mathbf{Z}) =
+\mathrm{softmax}
 \left(
 \frac{\mathbf{Q}\mathbf{K}^{\mathsf T}}{\sqrt{d_k}}
 \right)
@@ -276,10 +295,10 @@ $$
 Multi-head attention concatenates the head outputs and projects them back to the model dimension:
 
 $$
-\operatorname{MHA}(\mathbf{Z}) =
-\operatorname{Concat}
+\mathrm{MHA}(\mathbf{Z}) =
+\mathrm{Concat}
 \left(
-\operatorname{head}_1,\ldots,\operatorname{head}_H
+\mathrm{head}_1,\ldots,\mathrm{head}_H
 \right)\mathbf{W}_O.
 $$
 
@@ -287,12 +306,12 @@ The implemented block uses residual connections and layer normalization:
 
 $$
 \mathbf{U}^{(\ell)} =
-\operatorname{LayerNorm}
+\mathrm{LayerNorm}
 \left(
 \mathbf{Z}^{(\ell-1)} +
-\operatorname{Dropout}
+\mathrm{Dropout}
 \left(
-\operatorname{MHA}(\mathbf{Z}^{(\ell-1)})
+\mathrm{MHA}(\mathbf{Z}^{(\ell-1)})
 \right)
 \right),
 $$
@@ -301,13 +320,13 @@ then
 
 $$
 \mathbf{Z}^{(\ell)} =
-\operatorname{LayerNorm}
+\mathrm{LayerNorm}
 \left(
 \mathbf{U}^{(\ell)} +
-\operatorname{Dropout}
+\mathrm{Dropout}
 \left(
 \mathbf{W}_2
-\operatorname{GELU}
+\mathrm{GELU}
 \left(
 \mathbf{W}_1\mathbf{U}^{(\ell)}+\mathbf{b}_1
 \right)
@@ -321,7 +340,7 @@ After $L$ encoder layers, the CLS state is mapped to one clean sample estimate:
 $$
 \hat{\tilde s}[n] =
 \mathbf{w}_{out}^{\mathsf T}
-\operatorname{LayerNorm}
+\mathrm{LayerNorm}
 \left(
 \mathbf{Z}^{(L)}_{\text{CLS}}
 \right)
@@ -368,7 +387,7 @@ LMMSE inference applies $\hat{\mathbf{h}}$ to every test window. Transformer inf
 The primary metric is normalized mean squared error:
 
 $$
-\operatorname{NMSE} =
+\mathrm{NMSE} =
 \frac{
 \sum_n
 \left(
@@ -382,7 +401,7 @@ $$
 The code also stores mean squared error:
 
 $$
-\operatorname{MSE} =
+\mathrm{MSE} =
 \frac{1}{N}
 \sum_n
 \left(
@@ -437,10 +456,6 @@ The best architecture sweep run is `arch_small_P64`. In the window sweep, increa
 
 ![Transformer architecture comparison](outputs/visualiser/transformer/architecture_nmse_comparison.png)
 
-The waveform view below shows the strongest Transformer run, `window_P128_medium`, over an aligned test segment. The grey curve is the noisy ECG, the black curve is the clean reference, and the blue curve is the Transformer estimate. The lower panel shows the residual error after denoising.
-
-![Transformer denoising waveform](outputs/visualiser/transformer/transformer_inference_waveform.png)
-
 ### LMMSE vs Transformer
 
 | Transformer run | P | LMMSE NMSE | Transformer NMSE | Difference |
@@ -473,19 +488,6 @@ For interpretability, the pipeline extracts the mean CLS attention distribution 
 | `window_P128_medium` | 128 | 0.124198 |
 
 ![Attention vs LMMSE, P=128](outputs/evaluation/attention_vs_lmmse_P128.png)
-
-## Output Gallery
-
-| Figure | Path |
-| --- | --- |
-| Clean and noisy ECG preview | `outputs/visualiser/lmmse/signal_preview.png` |
-| Autocorrelation | `outputs/visualiser/lmmse/autocorrelation.png` |
-| Welch PSD | `outputs/visualiser/lmmse/welch_psd.png` |
-| LMMSE filters | `outputs/visualiser/lmmse/lmmse_filters.png` |
-| Transformer all run loss curves | `outputs/visualiser/transformer/transformer_train_validation_losses.png` |
-| Transformer window loss curves | `outputs/visualiser/transformer/window_train_validation_losses.png` |
-| Transformer inference waveform | `outputs/visualiser/transformer/transformer_inference_waveform.png` |
-| Validation gap summary | `outputs/visualiser/transformer/validation_gap_summary.png` |
 
 ## Repository Layout
 
