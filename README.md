@@ -1,7 +1,5 @@
 # ECG Denoising LMMSE
 
-Author: Varun Moparthi
-
 ## Abstract
 
 ECG Denoising LMMSE implements a complete ECG noise removal study on paired PhysioNet signals, using clean ECG from MIT BIH record `118` and noisy ECG from NSTDB record `118e06`. The project constructs aligned train and test arrays, characterizes the signal and noise with autocorrelation and Welch spectral estimates, derives a sample wise LMMSE estimator from lagged noisy ECG windows, and compares that linear estimator against Transformer encoder denoisers trained on the same causal window formulation.
