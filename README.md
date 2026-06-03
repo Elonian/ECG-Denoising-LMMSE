@@ -155,8 +155,8 @@ Expanding the quadratic gives
 $$
 J(\mathbf{h}) =
 \mathbb{E}[s[n]^2]
-- 2\mathbf{h}^{\mathsf T}\mathbf{r}_{sy}
-+ \mathbf{h}^{\mathsf T}\mathbf{R}_{yy}\mathbf{h},
+{}- 2\mathbf{h}^{\mathsf T}\mathbf{r}_{sy}
+{}+ \mathbf{h}^{\mathsf T}\mathbf{R}_{yy}\mathbf{h},
 $$
 
 with
@@ -258,7 +258,7 @@ $$
 \vdots \\
 \mathbf{e}_P
 \end{bmatrix}
-+ \mathrm{PE}.
+{}+ \mathrm{PE}.
 $$
 
 The positional encoding is sinusoidal:
@@ -330,7 +330,7 @@ $$
 \left(
 \mathbf{W}_1\mathbf{U}^{(\ell)}+\mathbf{b}_1
 \right)
-+ \mathbf{b}_2
+{}+ \mathbf{b}_2
 \right)
 \right).
 $$
@@ -344,7 +344,7 @@ $$
 \left(
 \mathbf{Z}^{(L)}_{\text{CLS}}
 \right)
-+ b_{out}.
+{}+ b_{out}.
 $$
 
 The estimate is then denormalized:
